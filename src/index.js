@@ -25,11 +25,8 @@ main();
 async function setup_steamcmd() {
     const [tool, toolDirectory] = await findOrDownload();
     core.debug(`${steamcmd} -> ${tool}`);
-    if (IS_LINUX) {
-        core.addPath(tool);
-    } else {
-        core.addPath(toolDirectory);
-    }
+    core.addPath(tool);
+    core.addPath(toolDirectory);
     core.exportVariable(steamcmd, tool);
     await exec.exec(tool, ['+help', '+info', '+quit']);
 }
