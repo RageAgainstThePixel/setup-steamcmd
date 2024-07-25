@@ -33262,7 +33262,7 @@ async function setup_steamcmd() {
     core.debug(`${steamcmd} -> ${tool}`);
     core.addPath(toolDirectory);
     core.exportVariable(steamcmd, tool);
-    await exec.exec(tool, ['+help', '+info', '+quit']);
+    await exec.exec(tool, ['+help', '+info', '+quit'], ignoreReturnCode = IS_WINDOWS);
 }
 
 async function findOrDownload() {
@@ -33334,7 +33334,8 @@ async function getVersion(path) {
             stdout: (data) => {
                 output += data.toString();
             }
-        }
+        },
+        ignoreReturnCode: IS_WINDOWS
     });
     const match = output.match(semVerRegEx);
     if (!match) {
