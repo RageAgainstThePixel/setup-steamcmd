@@ -30709,13 +30709,10 @@ const main = async () => {
 main();
 
 async function setup_steamcmd() {
-    const [tool, toolDirectory] = await findOrDownload();
+    const tool = await findOrDownload();
     core.debug(`${steamcmd} -> ${tool}`);
-    core.addPath(toolDirectory);
+    core.addPath(tool);
     core.exportVariable(steamcmd, tool);
-    if (IS_LINUX) {
-        await fs.symlink(tool, '/usr/bin/steamcmd');
-    }
     await exec.exec(tool, ['+help', '+info', '+quit']);
 }
 
@@ -30747,10 +30744,9 @@ async function findOrDownload() {
         core.debug(`Setting tool cache: ${downloadDirectory} | ${steamcmd} | ${downloadVersion}`);
         toolDirectory = await tc.cacheDir(downloadDirectory, steamcmd, downloadVersion);
     }
-
     tool = getExecutable(toolDirectory);
     core.debug(`Found ${tool} at ${toolDirectory}`);
-    return [tool, toolDirectory];
+    return tool;
 }
 
 function getDownloadUrl() {
