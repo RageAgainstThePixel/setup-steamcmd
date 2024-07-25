@@ -33258,44 +33258,45 @@ const main = async () => {
 main();
 
 async function setup_steamcmd() {
-    const pathToToolDir = await findOrDownload();
-    const tool = getExecutable(pathToToolDir);
+    const [tool, toolDirectory] = await findOrDownload();
     core.debug(`${steamcmd} -> ${tool}`);
-    core.addPath(pathToToolDir);
+    core.addPath(toolDirectory);
     core.exportVariable(steamcmd, tool);
     await exec.exec(tool, ['+help', '+info', '+quit']);
 }
 
 async function findOrDownload() {
-    let pathToToolDir = tc.find(steamcmd, '*');
-
-    if (!pathToToolDir) {
+    let toolDirectory = tc.find(steamcmd, '*');
+    let tool = undefined;
+    if (!toolDirectory) {
         const [url, archiveName] = getDownloadUrl();
         const archiveDownloadPath = path.resolve(getTempDirectory(), archiveName);
         core.debug(`Attempting to download ${steamcmd} from ${url} to ${archiveDownloadPath}`);
         const archivePath = await tc.downloadTool(url, archiveDownloadPath);
-        core.debug(`Successfully downloaded ${steamcmd} to ${archiveDownloadPath}`);
+        core.debug(`Successfully downloaded ${steamcmd} to ${archivePath}`);
         core.debug(`Extracting ${steamcmd} from ${archivePath}`);
-
-        let downloadPath = path.resolve(getTempDirectory(), steamcmd);
-
+        let downloadDirectory = undefined;
         if (IS_WINDOWS) {
-            downloadPath = await tc.extractZip(archivePath, downloadPath);
+            downloadDirectory = await tc.extractZip(archivePath, steamcmd);
         } else {
-            downloadPath = await tc.extractTar(archivePath, downloadPath);
+            downloadDirectory = await tc.extractTar(archivePath, steamcmd);
         }
-
-        if (IS_MAC || IS_LINUX) {
-            await exec.exec(`chmod +x ${downloadPath}`);
+        if (!downloadDirectory) {
+            throw new Error(`Failed to extract ${steamcmd}`);
         }
-
-        const downloadVersion = await getVersion(downloadPath);
-        core.debug(`Setting tool cache: ${downloadPath} | ${toolPath} | ${steamcmd} | ${downloadVersion}`);
-        pathToToolDir = await tc.cacheFile(downloadPath, toolPath, steamcmd, downloadVersion);
+        if (IS_LINUX || IS_MAC) {
+            await exec.exec(`chmod +x ${downloadDirectory}`);
+        }
+        core.debug(`Successfully extracted ${steamcmd} to ${downloadDirectory}`);
+        tool = getExecutable(downloadDirectory);
+        const downloadVersion = await getVersion(tool);
+        core.debug(`Setting tool cache: ${downloadDirectory} | ${toolPath} | ${steamcmd} | ${downloadVersion}`);
+        toolDirectory = await tc.cacheDir(downloadDirectory, toolPath, steamcmd, downloadVersion);
     }
 
-    core.debug(`Found ${steamcmd} at ${pathToToolDir}`);
-    return pathToToolDir;
+    tool = getExecutable(toolDirectory);
+    core.debug(`Found ${steamcmd} at ${toolDirectory}`);
+    return [tool, toolDirectory];
 }
 
 function getDownloadUrl() {
@@ -33328,7 +33329,6 @@ function getExecutable(directory) {
 async function getVersion(path) {
     const semVerRegEx = new RegExp(/([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)?/);
     let output = '';
-
     await exec.exec(path, 'version', {
         listeners: {
             stdout: (data) => {
@@ -33336,21 +33336,16 @@ async function getVersion(path) {
             }
         }
     });
-
     const match = output.match(semVerRegEx)[0];
-
     if (!match) {
         throw Error("Failed to find a valid version match");
     }
-
     const lastPeriodIndex = match.lastIndexOf('.');
     const semVerStr = match.substring(0, lastPeriodIndex) + '+' + match.substring(lastPeriodIndex + 1);
     const version = semver.clean(semVerStr);
-
     if (!version) {
         throw Error("Failed to find a valid version");
     }
-
     return version
 }
 
