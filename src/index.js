@@ -1,4 +1,3 @@
-const os = require('os');
 const semver = require('semver');
 const path = require('path');
 const core = require('@actions/core');
