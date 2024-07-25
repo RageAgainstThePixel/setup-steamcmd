@@ -1,8 +1,8 @@
-const semver = require('semver');
 const path = require('path');
 const core = require('@actions/core');
 const tc = require('@actions/tool-cache');
 const exec = require('@actions/exec');
+const fs = require('fs');
 
 const steamcmd = 'steamcmd';
 const IS_LINUX = process.platform === 'linux';
@@ -57,6 +57,14 @@ async function findOrDownload() {
         const downloadVersion = await getVersion(tool);
         core.debug(`Setting tool cache: ${downloadDirectory} | ${toolPath} | ${steamcmd} | ${downloadVersion}`);
         toolDirectory = await tc.cacheDir(downloadDirectory, toolPath, steamcmd, downloadVersion);
+
+        if (IS_LINUX || IS_MAC) {
+            const binDirectory = path.resolve(toolDirectory, 'bin');
+            const binExe = path.join(binDirectory, steamcmd);
+            await fs.mkdir(binDirectory);
+            await fs.writeFile(binExe, `#!/bin/bash\nexec ${toolPath} "$@"`);
+            await fs.chmod(binExe, 0o755);
+        }
     }
 
     tool = getExecutable(toolDirectory);
