@@ -25,13 +25,11 @@ main();
 async function setup_steamcmd() {
     const [tool, toolDirectory] = await findOrDownload();
     core.debug(`${steamcmd} -> ${tool}`);
-
     if (IS_LINUX) {
         core.addPath(tool);
     } else {
         core.addPath(toolDirectory);
     }
-
     core.exportVariable(steamcmd, tool);
     await exec.exec(tool, ['+help', '+info', '+quit']);
 }
@@ -71,14 +69,13 @@ async function findOrDownload() {
         const downloadVersion = await getVersion(tool);
         core.debug(`Setting tool cache: ${downloadDirectory} | ${steamcmd} | ${downloadVersion}`);
         toolDirectory = await tc.cacheDir(downloadDirectory, steamcmd, downloadVersion);
-    } else {
-        if (IS_LINUX) {
-            tool = path.resolve(toolDirectory, 'bin', steamcmd);
-        } else {
-            tool = getExecutable(toolDirectory);
-        }
     }
 
+    if (IS_LINUX) {
+        tool = path.resolve(toolDirectory, 'bin', steamcmd);
+    } else {
+        tool = getExecutable(toolDirectory);
+    }
     core.debug(`Found ${tool} at ${toolDirectory}`);
     return [tool, toolDirectory];
 }
@@ -113,6 +110,7 @@ function getExecutable(directory) {
 async function getVersion(path) {
     const semVerRegEx = 'Steam Console Client \\(c\\) Valve Corporation - version (?<version>\\d+)';
     let output = '';
+    core.startGroup('steamcmd +quit');
     await exec.exec(path, '+quit', {
         listeners: {
             stdout: (data) => {
@@ -121,6 +119,7 @@ async function getVersion(path) {
         },
         ignoreReturnCode: IS_WINDOWS
     });
+    core.endGroup();
     const match = output.match(semVerRegEx);
     if (!match) {
         throw new Error('Failed to get version');
