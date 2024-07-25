@@ -30744,7 +30744,7 @@ async function findOrDownload() {
         core.debug(`Setting tool cache: ${downloadDirectory} | ${toolPath} | ${steamcmd} | ${downloadVersion}`);
         toolDirectory = await tc.cacheDir(downloadDirectory, toolPath, steamcmd, downloadVersion);
 
-        if (IS_LINUX || IS_MAC) {
+        if (IS_LINUX) {
             const binDirectory = path.resolve(toolDirectory, 'bin');
             const binExe = path.join(binDirectory, steamcmd);
             await fs.mkdir(binDirectory);
