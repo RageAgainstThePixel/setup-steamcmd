@@ -30748,7 +30748,7 @@ async function findOrDownload() {
             const binDirectory = path.resolve(toolDirectory, 'bin');
             const binExe = path.join(binDirectory, steamcmd);
             await fs.mkdir(binDirectory);
-            await fs.writeFile(binExe, `#!/bin/bash\nexec ${toolPath} "$@"`);
+            await fs.writeFile(binExe, `#!/bin/bash\nexec ${tool} "$@"`);
             await fs.chmod(binExe, 0o755);
         }
     }
