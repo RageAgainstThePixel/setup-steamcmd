@@ -33270,11 +33270,20 @@ async function findOrDownload() {
     let pathToToolDir = tc.find(steamcmd, '*');
 
     if (!pathToToolDir) {
-        const url = getDownloadUrl();
-        let downloadPath = path.resolve(getTempDirectory(), toolPath);
-        core.debug(`Attempting to download ${steamcmd} from ${url} to ${downloadPath}`);
-        downloadPath = await tc.downloadTool(url, downloadPath);
-        core.debug(`Successfully downloaded ${steamcmd} to ${downloadPath}`);
+        const [url, archiveName] = getDownloadUrl();
+        const archiveDownloadPath = path.resolve(getTempDirectory(), archiveName);
+        core.debug(`Attempting to download ${steamcmd} from ${url} to ${archiveDownloadPath}`);
+        const archivePath = await tc.downloadTool(url, archiveDownloadPath);
+        core.debug(`Successfully downloaded ${steamcmd} to ${archiveDownloadPath}`);
+        core.debug(`Extracting ${steamcmd} from ${archivePath}`);
+
+        let downloadPath = path.resolve(getTempDirectory(), steamcmd);
+
+        if (IS_WINDOWS) {
+            downloadPath = await tc.extractZip(archivePath, downloadPath);
+        } else {
+            downloadPath = await tc.extractTar(archivePath, downloadPath);
+        }
 
         if (IS_MAC || IS_LINUX) {
             await exec.exec(`chmod +x ${downloadPath}`);
@@ -33290,16 +33299,21 @@ async function findOrDownload() {
 }
 
 function getDownloadUrl() {
+    let archiveName = undefined;
     switch (process.platform) {
         case 'linux':
-            return 'https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz';
+            archiveName = 'steamcmd_linux.tar.gz';
+            break;
         case 'darwin':
-            return 'https://steamcdn-a.akamaihd.net/client/installer/steamcmd_osx.tar.gz';
+            archiveName = 'steamcmd_osx.tar.gz';
+            break;
         case 'win32':
-            return 'https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip';
+            archiveName = 'steamcmd.zip';
+            break;
         default:
             throw new Error('Unsupported platform');
     }
+    return [`https://steamcdn-a.akamaihd.net/client/installer/${archiveName}`, archiveName];
 }
 
 function getTempDirectory() {
