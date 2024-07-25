@@ -25,18 +25,13 @@ main();
 async function setup_steamcmd() {
     const [tool, toolDirectory] = await findOrDownload();
     core.debug(`${steamcmd} -> ${tool}`);
-    if (IS_LINUX) {
-        core.addPath(tool);
-    } else {
-        core.addPath(toolDirectory);
-    }
+    core.addPath(path.dirname(tool));
     core.exportVariable(steamcmd, tool);
-    await exec.exec(tool, ['+help', '+info', '+quit']);
+    await exec.exec(tool, ['+help', '+quit']);
 }
 
 async function findOrDownload() {
     let toolDirectory = tc.find(steamcmd, '*');
-    let tool = undefined;
     if (!toolDirectory) {
         const [url, archiveName] = getDownloadUrl();
         const archiveDownloadPath = path.resolve(getTempDirectory(), archiveName);
@@ -44,40 +39,40 @@ async function findOrDownload() {
         const archivePath = await tc.downloadTool(url, archiveDownloadPath);
         core.debug(`Successfully downloaded ${steamcmd} to ${archivePath}`);
         core.debug(`Extracting ${steamcmd} from ${archivePath}`);
-        let downloadDirectory = path.resolve(getTempDirectory(), steamcmd);
+        toolDirectory = path.resolve(getTempDirectory(), steamcmd);
         if (IS_WINDOWS) {
-            downloadDirectory = await tc.extractZip(archivePath, downloadDirectory);
+            toolDirectory = await tc.extractZip(archivePath, toolDirectory);
         } else {
-            downloadDirectory = await tc.extractTar(archivePath, downloadDirectory);
+            toolDirectory = await tc.extractTar(archivePath, toolDirectory);
         }
-        if (!downloadDirectory) {
+        if (!toolDirectory) {
             throw new Error(`Failed to extract ${steamcmd} from ${archivePath}`);
         }
         if (IS_LINUX || IS_MAC) {
-            await exec.exec(`chmod +x ${downloadDirectory}`);
+            const extractedPath = path.resolve(toolDirectory, steamcmd);
+            await exec.exec(`chmod +x ${extractedPath}`);
+            core.debug(`Set executable permissions for ${extractedPath}`);
         }
-        core.debug(`Successfully extracted ${steamcmd} to ${downloadDirectory}`);
-        tool = getExecutable(downloadDirectory);
-        if (IS_LINUX) {
-            const binDir = path.resolve(downloadDirectory, 'bin');
-            const binExe = path.resolve(binDir, steamcmd);
-            await fs.mkdir(binDir);
-            await fs.writeFile(binExe, `#!/bin/bash\nexec "${tool}" "$@"`);
-            await fs.chmod(binExe, 0o755);
-            tool = binExe;
-        }
+        core.debug(`Successfully extracted ${steamcmd} to ${toolDirectory}`);
+        const tool = getExecutable(toolDirectory);
         const downloadVersion = await getVersion(tool);
-        core.debug(`Setting tool cache: ${downloadDirectory} | ${steamcmd} | ${downloadVersion}`);
-        toolDirectory = await tc.cacheDir(downloadDirectory, steamcmd, downloadVersion);
+        core.debug(`Setting tool cache: ${toolDirectory} | ${steamcmd} | ${downloadVersion}`);
+        toolDirectory = await tc.cacheDir(toolDirectory, steamcmd, downloadVersion);
     }
 
+    const tool = getExecutable(toolDirectory);
     if (IS_LINUX) {
-        tool = path.resolve(toolDirectory, 'bin', steamcmd);
-    } else {
-        tool = getExecutable(toolDirectory);
+        const binDir = path.resolve(toolDirectory, 'bin');
+        const binExe = getExecutable(binDir);
+        core.debug(`Creating bin directory: ${binDir}`);
+        await fs.mkdir(binDir, { recursive: true });
+        await fs.writeFile(binExe, `#!/bin/bash\nexec "${tool}" "$@"`);
+        await fs.chmod(binExe, 0o755);
+        core.debug(`Created and set permissions for bash wrapper: ${binExe}`);
     }
-    core.debug(`Found ${tool} at ${toolDirectory}`);
-    return [tool, toolDirectory];
+
+    core.debug(`Found ${steamcmd} tool at ${toolDirectory}`);
+    return [getExecutable(toolDirectory), toolDirectory];
 }
 
 function getDownloadUrl() {
@@ -107,27 +102,25 @@ function getExecutable(directory) {
     return path.resolve(directory, toolPath);
 }
 
-async function getVersion(path) {
-    const semVerRegEx = 'Steam Console Client \\(c\\) Valve Corporation - version (?<version>\\d+)';
+async function getVersion(tool) {
+    const semVerRegEx = /Steam Console Client \(c\) Valve Corporation - version (?<version>\d+)/;
     let output = '';
     core.startGroup('steamcmd +quit');
-    await exec.exec(path, '+quit', {
+    await exec.exec(tool, ['+quit'], {
         listeners: {
             stdout: (data) => {
                 output += data.toString();
             }
         },
-        ignoreReturnCode: IS_WINDOWS
+        ignoreReturnCode: IS_WINDOWS,
+        silent: !core.isDebug()
     });
     core.endGroup();
     const match = output.match(semVerRegEx);
-    if (!match) {
+    if (!match || !match.groups.version) {
         throw new Error('Failed to get version');
     }
-    const version = match.groups.version
-    if (!version) {
-        throw new Error('Failed to parse version');
-    }
+    const version = match.groups.version;
     core.debug(`Found version: ${version}`);
-    return version
+    return version;
 }
