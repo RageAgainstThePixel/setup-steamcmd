@@ -23,9 +23,15 @@ const main = async () => {
 main();
 
 async function setup_steamcmd() {
-    const tool = await findOrDownload();
+    const [tool, toolDirectory] = await findOrDownload();
     core.debug(`${steamcmd} -> ${tool}`);
-    core.addPath(tool);
+
+    if (IS_LINUX) {
+        core.addPath(tool);
+    } else {
+        core.addPath(toolDirectory);
+    }
+
     core.exportVariable(steamcmd, tool);
     await exec.exec(tool, ['+help', '+info', '+quit']);
 }
@@ -53,14 +59,29 @@ async function findOrDownload() {
             await exec.exec(`chmod +x ${downloadDirectory}`);
         }
         core.debug(`Successfully extracted ${steamcmd} to ${downloadDirectory}`);
-        tool = getExecutable(downloadDirectory);
+        if (IS_LINUX) {
+            const binDir = path.resolve(downloadDirectory, 'bin');
+            const binExe = path.resolve(binDir, steamcmd);
+            await fs.mkdir(binDir);
+            await fs.writeFile(binExe, `#!/bin/bash\n"${tool}" "$@"`);
+            await fs.chmod(binExe, 0o755);
+            tool = binExe;
+        } else {
+            tool = getExecutable(downloadDirectory);
+        }
         const downloadVersion = await getVersion(tool);
         core.debug(`Setting tool cache: ${downloadDirectory} | ${steamcmd} | ${downloadVersion}`);
         toolDirectory = await tc.cacheDir(downloadDirectory, steamcmd, downloadVersion);
+    } else {
+        if (IS_LINUX) {
+            tool = path.resolve(toolDirectory, 'bin', steamcmd);
+        } else {
+            tool = getExecutable(toolDirectory);
+        }
     }
-    tool = getExecutable(toolDirectory);
+
     core.debug(`Found ${tool} at ${toolDirectory}`);
-    return tool;
+    return [tool, toolDirectory];
 }
 
 function getDownloadUrl() {
