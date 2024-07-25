@@ -27,7 +27,7 @@ async function setup_steamcmd() {
     core.debug(`${steamcmd} -> ${tool}`);
     core.addPath(toolDirectory);
     core.exportVariable(steamcmd, tool);
-    await exec.exec(tool, ['+help', '+info', '+quit'], ignoreReturnCode = IS_WINDOWS);
+    await exec.exec(tool, ['+help', '+info', '+quit']);
 }
 
 async function findOrDownload() {

@@ -29,4 +29,4 @@ jobs:
       - name: RageAgainstThePixel/setup-steamcmd
         uses: ./
 
-      - run: 'steamcmd help'
+      - run: 'steamcmd +help +quit'
