@@ -33336,13 +33336,13 @@ async function getVersion(path) {
             }
         }
     });
-    const match = output.match(semVerRegEx)[0];
+    const match = output.match(semVerRegEx);
     if (!match) {
-        throw Error("Failed to find a valid version match");
+        throw new Error('Failed to get version');
     }
-    const version = semver.coerce(match.groups.version);
+    const version = match.groups.version
     if (!version) {
-        throw Error("Failed to find a valid version");
+        throw new Error('Failed to parse version');
     }
     core.debug(`Found version: ${version}`);
     return version
