@@ -2,7 +2,7 @@ const path = require('path');
 const core = require('@actions/core');
 const tc = require('@actions/tool-cache');
 const exec = require('@actions/exec');
-const fs = require('fs');
+const fs = require('fs').promises;
 
 const steamcmd = 'steamcmd';
 const IS_LINUX = process.platform === 'linux';

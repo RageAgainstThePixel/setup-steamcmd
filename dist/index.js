@@ -30688,7 +30688,7 @@ const path = __nccwpck_require__(1017);
 const core = __nccwpck_require__(2186);
 const tc = __nccwpck_require__(7784);
 const exec = __nccwpck_require__(1514);
-const fs = __nccwpck_require__(7147);
+const fs = (__nccwpck_require__(7147).promises);
 
 const steamcmd = 'steamcmd';
 const IS_LINUX = process.platform === 'linux';
