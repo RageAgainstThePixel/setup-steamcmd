@@ -30743,6 +30743,15 @@ async function findOrDownload() {
         const downloadVersion = await getVersion(tool);
         core.debug(`Setting tool cache: ${downloadDirectory} | ${steamcmd} | ${downloadVersion}`);
         toolDirectory = await tc.cacheDir(downloadDirectory, steamcmd, downloadVersion);
+
+        if (IS_LINUX) {
+            // setup executable without .sh extension
+            const binDir = path.resolve(toolDirectory, 'bin');
+            const binExe = path.resolve(binDir, steamcmd);
+            await fs.mkdir(binDir);
+            await fs.writeFile(binExe, `#!/bin/bash\n"${tool}" "$@"`);
+            await fs.chmod(binExe, 0o755);
+        }
     }
 
     tool = getExecutable(toolDirectory);
