@@ -42,12 +42,12 @@ async function findOrDownload() {
         core.debug(`Extracting ${steamcmd} from ${archivePath}`);
         let downloadDirectory = undefined;
         if (IS_WINDOWS) {
-            downloadDirectory = await tc.extractZip(archivePath, steamcmd);
+            downloadDirectory = await tc.extractZip(archivePath);
         } else {
-            downloadDirectory = await tc.extractTar(archivePath, steamcmd);
+            downloadDirectory = await tc.extractTar(archivePath);
         }
         if (!downloadDirectory) {
-            throw new Error(`Failed to extract ${steamcmd}`);
+            throw new Error(`Failed to extract ${steamcmd} from ${archivePath}`);
         }
         if (IS_LINUX || IS_MAC) {
             await exec.exec(`chmod +x ${downloadDirectory}`);
@@ -57,14 +57,6 @@ async function findOrDownload() {
         const downloadVersion = await getVersion(tool);
         core.debug(`Setting tool cache: ${downloadDirectory} | ${toolPath} | ${steamcmd} | ${downloadVersion}`);
         toolDirectory = await tc.cacheDir(downloadDirectory, toolPath, steamcmd, downloadVersion);
-
-        // if (IS_LINUX) {
-        //     const binDirectory = path.resolve(toolDirectory, 'bin');
-        //     const binExe = path.join(binDirectory, steamcmd);
-        //     await fs.mkdir(binDirectory);
-        //     await fs.writeFile(binExe, `#!/bin/bash\nexec ${tool} "$@"`);
-        //     await fs.chmod(binExe, 0o755);
-        // }
     }
 
     tool = getExecutable(toolDirectory);
