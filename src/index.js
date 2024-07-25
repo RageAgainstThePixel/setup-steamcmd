@@ -27,6 +27,9 @@ async function setup_steamcmd() {
     core.debug(`${steamcmd} -> ${tool}`);
     core.addPath(toolDirectory);
     core.exportVariable(steamcmd, tool);
+    if (IS_LINUX) {
+        await fs.symlink(tool, '/usr/bin/steamcmd');
+    }
     await exec.exec(tool, ['+help', '+info', '+quit']);
 }
 
