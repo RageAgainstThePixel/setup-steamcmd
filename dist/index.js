@@ -30726,11 +30726,11 @@ async function findOrDownload() {
         const archivePath = await tc.downloadTool(url, archiveDownloadPath);
         core.debug(`Successfully downloaded ${steamcmd} to ${archivePath}`);
         core.debug(`Extracting ${steamcmd} from ${archivePath}`);
-        let downloadDirectory = undefined;
+        let downloadDirectory = path.resolve(getTempDirectory(), steamcmd);
         if (IS_WINDOWS) {
-            downloadDirectory = await tc.extractZip(archivePath);
+            downloadDirectory = await tc.extractZip(archivePath, downloadDirectory);
         } else {
-            downloadDirectory = await tc.extractTar(archivePath);
+            downloadDirectory = await tc.extractTar(archivePath, downloadDirectory);
         }
         if (!downloadDirectory) {
             throw new Error(`Failed to extract ${steamcmd} from ${archivePath}`);
@@ -30741,12 +30741,12 @@ async function findOrDownload() {
         core.debug(`Successfully extracted ${steamcmd} to ${downloadDirectory}`);
         tool = getExecutable(downloadDirectory);
         const downloadVersion = await getVersion(tool);
-        core.debug(`Setting tool cache: ${downloadDirectory} | ${toolPath} | ${steamcmd} | ${downloadVersion}`);
-        toolDirectory = await tc.cacheDir(downloadDirectory, toolPath, steamcmd, downloadVersion);
+        core.debug(`Setting tool cache: ${downloadDirectory} | ${steamcmd} | ${downloadVersion}`);
+        toolDirectory = await tc.cacheDir(downloadDirectory, steamcmd, downloadVersion);
     }
 
     tool = getExecutable(toolDirectory);
-    core.debug(`Found ${steamcmd} at ${toolDirectory}`);
+    core.debug(`Found ${tool} at ${toolDirectory}`);
     return [tool, toolDirectory];
 }
 
