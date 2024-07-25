@@ -1,0 +1,9 @@
+name: 'Setup streamcmd'
+description: 'Sets up steamcmd for Github Action Runners'
+branding:
+  icon: 'box'
+  color: 'blue'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
