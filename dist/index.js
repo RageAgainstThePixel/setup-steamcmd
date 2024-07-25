@@ -33327,7 +33327,7 @@ function getExecutable(directory) {
 }
 
 async function getVersion(path) {
-    const semVerRegEx = '\\(c\\) Valve Corporation - version (?<version>\\d+)';
+    const semVerRegEx = 'Steam Console Client \\(c\\) Valve Corporation - version (?<version>\\d+)';
     let output = '';
     await exec.exec(path, ['version', '+quit'], {
         listeners: {
