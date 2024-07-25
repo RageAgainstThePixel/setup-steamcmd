@@ -33327,7 +33327,7 @@ function getExecutable(directory) {
 }
 
 async function getVersion(path) {
-    const semVerRegEx = new RegExp(/([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)?/);
+    const semVerRegEx = '\\(c\\) Valve Corporation - version (?<version>\\d+)';
     let output = '';
     await exec.exec(path, 'version', {
         listeners: {
@@ -33340,12 +33340,11 @@ async function getVersion(path) {
     if (!match) {
         throw Error("Failed to find a valid version match");
     }
-    const lastPeriodIndex = match.lastIndexOf('.');
-    const semVerStr = match.substring(0, lastPeriodIndex) + '+' + match.substring(lastPeriodIndex + 1);
-    const version = semver.clean(semVerStr);
+    const version = match.groups.version;
     if (!version) {
         throw Error("Failed to find a valid version");
     }
+    core.debug(`Found version: ${version}`);
     return version
 }
 
