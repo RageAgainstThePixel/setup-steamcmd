@@ -30745,6 +30745,7 @@ async function findOrDownload() {
             await exec.exec(`chmod +x ${downloadDirectory}`);
         }
         core.debug(`Successfully extracted ${steamcmd} to ${downloadDirectory}`);
+        tool = getExecutable(downloadDirectory);
         if (IS_LINUX) {
             const binDir = path.resolve(downloadDirectory, 'bin');
             const binExe = path.resolve(binDir, steamcmd);
@@ -30752,8 +30753,6 @@ async function findOrDownload() {
             await fs.writeFile(binExe, `#!/bin/bash\nexec "${tool}" "$@"`);
             await fs.chmod(binExe, 0o755);
             tool = binExe;
-        } else {
-            tool = getExecutable(downloadDirectory);
         }
         const downloadVersion = await getVersion(tool);
         core.debug(`Setting tool cache: ${downloadDirectory} | ${steamcmd} | ${downloadVersion}`);
