@@ -94,7 +94,7 @@ function getExecutable(directory) {
 async function getVersion(path) {
     const semVerRegEx = 'Steam Console Client \\(c\\) Valve Corporation - version (?<version>\\d+)';
     let output = '';
-    await exec.exec(path, ['version', '+quit'], {
+    await exec.exec(path, '+quit', {
         listeners: {
             stdout: (data) => {
                 output += data.toString();
@@ -105,7 +105,7 @@ async function getVersion(path) {
     if (!match) {
         throw Error("Failed to find a valid version match");
     }
-    const version = match.groups.version;
+    const version = semver.coerce(match.groups.version);
     if (!version) {
         throw Error("Failed to find a valid version");
     }
