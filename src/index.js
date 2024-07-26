@@ -27,7 +27,7 @@ async function setup_steamcmd() {
     core.debug(`${steamcmd} -> ${tool}`);
     core.addPath(toolDirectory);
     core.exportVariable(steamcmd, tool);
-    await exec.exec(tool, ['+help', '+info', '+quit']);
+    await exec.exec(tool, ['+help', '+quit']);
 }
 
 async function findOrDownload() {
@@ -107,7 +107,6 @@ function getExecutable(directory) {
 async function getVersion(path) {
     const semVerRegEx = 'Steam Console Client \\(c\\) Valve Corporation - version (?<version>\\d+)';
     let output = '';
-    core.startGroup('steamcmd +quit');
     await exec.exec(path, '+quit', {
         listeners: {
             stdout: (data) => {
@@ -117,7 +116,6 @@ async function getVersion(path) {
         ignoreReturnCode: IS_WINDOWS,
         silent: !core.isDebug()
     });
-    core.endGroup();
     const match = output.match(semVerRegEx);
     if (!match) {
         throw new Error('Failed to get version');
