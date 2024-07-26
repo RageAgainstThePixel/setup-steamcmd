@@ -33,3 +33,4 @@ jobs:
           which steamcmd
           steamcmd +help +quit
           ls -la $STEAM_CMD
+        shell: bash
