@@ -30709,10 +30709,9 @@ const main = async () => {
 main();
 
 async function setup_steamcmd() {
-    const [tool, toolDirectory] = await findOrDownload();
+    const tool = await findOrDownload();
     core.debug(`${steamcmd} -> ${tool}`);
     core.addPath(tool);
-    core.addPath(toolDirectory);
     core.exportVariable(steamcmd, tool);
     await exec.exec(tool, ['+help', '+info', '+quit']);
 }
@@ -30760,7 +30759,7 @@ async function findOrDownload() {
         tool = getExecutable(toolDirectory);
     }
     core.debug(`Found ${tool} in ${toolDirectory}`);
-    return [tool, toolDirectory];
+    return tool;
 }
 
 function getDownloadUrl() {
