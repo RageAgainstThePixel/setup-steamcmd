@@ -29,4 +29,7 @@ jobs:
       - name: RageAgainstThePixel/setup-steamcmd
         uses: ./
 
+      - run: 'which steamcmd'
+        if: runner.os == 'ubuntu-latest'
+
       - run: 'steamcmd +help +quit'
