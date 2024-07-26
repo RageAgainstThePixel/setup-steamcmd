@@ -5,6 +5,7 @@ const exec = require('@actions/exec');
 const fs = require('fs').promises;
 
 const steamcmd = 'steamcmd';
+const STEAM_CMD = 'STEAM_CMD';
 const IS_LINUX = process.platform === 'linux';
 const IS_MAC = process.platform === 'darwin';
 const IS_WINDOWS = process.platform === 'win32';
@@ -25,13 +26,13 @@ main();
 async function setup_steamcmd() {
     const [tool, toolDirectory] = await findOrDownload();
     await exec.exec(tool, ['+help', '+quit']);
-    core.debug(`${steamcmd} -> ${toolDirectory}`);
+    core.debug(`${STEAM_CMD} -> ${toolDirectory}`);
     core.addPath(toolDirectory);
     if (IS_LINUX) {
         const toolRootDirectory = path.resolve(toolDirectory, '..');
-        core.exportVariable(steamcmd, toolRootDirectory);
+        core.exportVariable(STEAM_CMD, toolRootDirectory);
     } else {
-        core.exportVariable(steamcmd, toolDirectory);
+        core.exportVariable(STEAM_CMD, toolDirectory);
     }
 }
 
