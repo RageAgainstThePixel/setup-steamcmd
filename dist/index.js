@@ -30699,7 +30699,7 @@ const toolPath = `${steamcmd}${toolExtension}`;
 
 const main = async () => {
     try {
-        core.info('Setting up steamcmd');
+        core.info('Setting up steamcmd...');
         await setup_steamcmd();
     } catch (error) {
         core.setFailed(error.message);
@@ -30710,10 +30710,15 @@ main();
 
 async function setup_steamcmd() {
     const [tool, toolDirectory] = await findOrDownload();
-    core.debug(`${steamcmd} -> ${tool}`);
-    core.addPath(toolDirectory);
-    core.exportVariable(steamcmd, tool);
     await exec.exec(tool, ['+help', '+quit']);
+    core.debug(`${steamcmd} -> ${toolDirectory}`);
+    core.addPath(toolDirectory);
+    if (IS_LINUX) {
+        const toolRootDirectory = path.resolve(toolDirectory, '..');
+        core.exportVariable(steamcmd, toolRootDirectory);
+    } else {
+        core.exportVariable(steamcmd, toolDirectory);
+    }
 }
 
 async function findOrDownload() {
@@ -30752,7 +30757,6 @@ async function findOrDownload() {
         core.debug(`Setting tool cache: ${downloadDirectory} | ${steamcmd} | ${downloadVersion}`);
         toolDirectory = await tc.cacheDir(downloadDirectory, steamcmd, downloadVersion);
     }
-
     if (IS_LINUX) {
         tool = path.resolve(toolDirectory, 'bin', steamcmd);
         toolDirectory = path.resolve(toolDirectory, 'bin');
