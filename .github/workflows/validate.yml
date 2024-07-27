@@ -33,11 +33,11 @@ jobs:
           which steamcmd
           steamcmd +login anonymous +help +quit
           echo "$STEAM_DIR"
-          logs=$(find "$STEAM_DIR/logs" -name '*.txt')
-          echo "Found logs: $logs"
-          // print out all logs
-          for log in $logs; do
-            echo "Log: $log"
-            cat "$log"
+          logsDir="$STEAM_DIR/logs"
+          echo "Logs dir: $logsDir"
+          logFiles=$(ls $logsDir)
+          for logFile in $logFiles; do
+            echo "$logsDir/$logFile"
+            cat "$logsDir/$logFile"
           done
         shell: bash
