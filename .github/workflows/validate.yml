@@ -30,15 +30,8 @@ jobs:
         uses: ./
 
       - run: |
+          echo "STEAM_CMD: $STEAM_CMD"
+          echo "STEAM_DIR: $STEAM_DIR"
           which steamcmd
           steamcmd +login anonymous +help +quit
-          echo "$STEAM_DIR"
-          logsDir="$STEAM_DIR/logs"
-          echo "Logs dir: $logsDir"
-          logFiles=$(ls "$logsDir")
-          for logFile in $logFiles; do
-            echo "::group::$logsDir/$logFile"
-            cat "$logsDir/$logFile"
-            echo "::endgroup::"
-          done
         shell: bash
