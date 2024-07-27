@@ -33,5 +33,10 @@ jobs:
           which steamcmd
           steamcmd +login anonymous +help +quit
           echo "$STEAM_DIR"
-          ls -laR "$STEAM_DIR"
+          logs=$(find "$STEAM_DIR" -name '*.log')
+          // print out all logs
+          for log in $logs; do
+            echo "Log: $log"
+            cat "$log"
+          done
         shell: bash
