@@ -30,5 +30,8 @@ jobs:
         uses: ./
 
       - run: |
-          which steamcmd
-          steamcmd +help +quit
+          echo "STEAM_CMD: $STEAM_CMD"
+          echo "STEAM_DIR: $STEAM_DIR"
+          which steamcmd > /dev/null
+          steamcmd +login anonymous +help +quit
+        shell: bash

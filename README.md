@@ -1,6 +1,11 @@
 # setup-steamcmd
 
-Sets up `steamcmd` for Github Action Runners.
+A GitHub Action to setup the [`steamcmd`](https://developer.valvesoftware.com/wiki/SteamCMD) command alias.
+
+## Exported Env Vars
+
+- `STEAM_CMD` the `steamcmd` directory location.
+- `STEAM_DIR` the steam install directory location.
 
 ## How to use
 
@@ -13,11 +18,12 @@ jobs:
         os: [ macos-latest, windows-latest, ubuntu-latest ]
 
     steps:
-      - uses: actions/checkout@v4
+      # download and setup the steamcmd
       - uses: RageAgainstThePixel/setup-steamcmd@v1
+      # run commands
       - run: |
           which steamcmd
           steamcmd +help +quit
 ```
 
-for a list of `steamcmd` commands see [this list](https://github.com/dgibbs64/SteamCMD-Commands-List).
+For a full list of `steamcmd` commands see [this list](https://github.com/dgibbs64/SteamCMD-Commands-List/blob/main/steamcmd_commands.txt).

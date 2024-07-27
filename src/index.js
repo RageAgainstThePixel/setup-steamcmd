@@ -5,6 +5,8 @@ const exec = require('@actions/exec');
 const fs = require('fs').promises;
 
 const steamcmd = 'steamcmd';
+const STEAM_CMD = 'STEAM_CMD';
+const STEAM_DIR = 'STEAM_DIR';
 const IS_LINUX = process.platform === 'linux';
 const IS_MAC = process.platform === 'darwin';
 const IS_WINDOWS = process.platform === 'win32';
@@ -13,7 +15,7 @@ const toolPath = `${steamcmd}${toolExtension}`;
 
 const main = async () => {
     try {
-        core.info('Setting up steamcmd');
+        core.info(`Setting up ${steamcmd}...`);
         await setup_steamcmd();
     } catch (error) {
         core.setFailed(error.message);
@@ -23,11 +25,14 @@ const main = async () => {
 main();
 
 async function setup_steamcmd() {
-    const [tool, toolDirectory] = await findOrDownload();
-    core.debug(`${steamcmd} -> ${tool}`);
+    const [toolDirectory, steamDir] = await findOrDownload();
+    core.debug(`${STEAM_CMD} -> ${toolDirectory}`);
     core.addPath(toolDirectory);
-    core.exportVariable(steamcmd, tool);
-    await exec.exec(tool, ['+help', '+quit']);
+    const steam_cmd = path.join(toolDirectory, steamcmd);
+    core.exportVariable(STEAM_CMD, steam_cmd);
+    core.debug(`${STEAM_DIR} -> ${steamDir}`);
+    core.exportVariable(STEAM_DIR, steamDir);
+    await exec.exec(steamcmd, ['+help', '+quit']);
 }
 
 async function findOrDownload() {
@@ -35,12 +40,12 @@ async function findOrDownload() {
     let tool = undefined;
     if (!toolDirectory) {
         const [url, archiveName] = getDownloadUrl();
-        const archiveDownloadPath = path.resolve(getTempDirectory(), archiveName);
+        const archiveDownloadPath = path.join(getTempDirectory(), archiveName);
         core.debug(`Attempting to download ${steamcmd} from ${url} to ${archiveDownloadPath}`);
         const archivePath = await tc.downloadTool(url, archiveDownloadPath);
         core.debug(`Successfully downloaded ${steamcmd} to ${archivePath}`);
         core.debug(`Extracting ${steamcmd} from ${archivePath}`);
-        let downloadDirectory = path.resolve(getTempDirectory(), steamcmd);
+        let downloadDirectory = path.join(getTempDirectory(), steamcmd);
         if (IS_WINDOWS) {
             downloadDirectory = await tc.extractZip(archivePath, downloadDirectory);
         } else {
@@ -53,28 +58,22 @@ async function findOrDownload() {
             await exec.exec(`chmod +x ${downloadDirectory}`);
         }
         core.debug(`Successfully extracted ${steamcmd} to ${downloadDirectory}`);
-        tool = getExecutable(downloadDirectory);
+        tool = path.join(downloadDirectory, toolPath);
         if (IS_LINUX) {
-            const binDir = path.resolve(downloadDirectory, 'bin');
-            const binExe = path.resolve(binDir, steamcmd);
-            await fs.mkdir(binDir);
-            await fs.writeFile(binExe, `#!/bin/bash\nexec "${tool}" "$@"`);
-            await fs.chmod(binExe, 0o755);
-            tool = binExe;
+            const exe = path.join(downloadDirectory, steamcmd);
+            await fs.writeFile(exe, `#!/bin/bash\nexec "${tool}" "$@"`);
+            await fs.chmod(exe, 0o755);
         }
         const downloadVersion = await getVersion(tool);
         core.debug(`Setting tool cache: ${downloadDirectory} | ${steamcmd} | ${downloadVersion}`);
         toolDirectory = await tc.cacheDir(downloadDirectory, steamcmd, downloadVersion);
-    }
-
-    if (IS_LINUX) {
-        tool = path.resolve(toolDirectory, 'bin', steamcmd);
-        toolDirectory = path.resolve(toolDirectory, 'bin');
     } else {
-        tool = getExecutable(toolDirectory);
+        tool = path.join(toolDirectory, toolPath);
     }
+    fs.access(tool);
     core.debug(`Found ${tool} in ${toolDirectory}`);
-    return [tool, toolDirectory];
+    const steamDir = getSteamDir(toolDirectory);
+    return [toolDirectory, steamDir];
 }
 
 function getDownloadUrl() {
@@ -100,14 +99,10 @@ function getTempDirectory() {
     return tempDirectory
 }
 
-function getExecutable(directory) {
-    return path.resolve(directory, toolPath);
-}
-
-async function getVersion(path) {
+async function getVersion(tool) {
     const semVerRegEx = 'Steam Console Client \\(c\\) Valve Corporation - version (?<version>\\d+)';
     let output = '';
-    await exec.exec(path, '+quit', {
+    await exec.exec(tool, '+quit', {
         listeners: {
             stdout: (data) => {
                 output += data.toString();
@@ -126,4 +121,32 @@ async function getVersion(path) {
     }
     core.debug(`Found version: ${version}`);
     return version
+}
+
+function getSteamDir(toolDirectory) {
+    let steamDir = undefined;
+    switch (process.platform) {
+        case 'linux':
+            steamDir = '/home/runner/Steam';
+            break;
+        case 'darwin':
+            steamDir = '/Users/runner/Library/Application Support/Steam';
+            break;
+        default:
+            steamDir = toolDirectory;
+            break;
+    }
+    // check if steam directory exists and create if not
+    try {
+        fs.access(steamDir);
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            core.debug(`Creating steam directory: ${steamDir}`);
+            fs.mkdir(steamDir);
+        } else {
+            throw error;
+        }
+    }
+    core.debug(`Steam directory: ${steamDir}`);
+    return steamDir;
 }
