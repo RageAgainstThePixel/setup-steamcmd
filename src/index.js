@@ -15,7 +15,7 @@ const toolPath = `${steamcmd}${toolExtension}`;
 
 const main = async () => {
     try {
-        core.info('Setting up steamcmd...');
+        core.info(`Setting up ${steamcmd}...`);
         await setup_steamcmd();
     } catch (error) {
         core.setFailed(error.message);
@@ -67,8 +67,9 @@ async function findOrDownload() {
         const downloadVersion = await getVersion(tool);
         core.debug(`Setting tool cache: ${downloadDirectory} | ${steamcmd} | ${downloadVersion}`);
         toolDirectory = await tc.cacheDir(downloadDirectory, steamcmd, downloadVersion);
+    } else {
+        tool = path.resolve(toolDirectory, toolPath);
     }
-    tool = path.resolve(toolDirectory, toolPath);
     fs.access(tool);
     core.debug(`Found ${tool} in ${toolDirectory}`);
     const steamDir = getSteamDir(toolDirectory);
@@ -98,10 +99,10 @@ function getTempDirectory() {
     return tempDirectory
 }
 
-async function getVersion(path) {
+async function getVersion(tool) {
     const semVerRegEx = 'Steam Console Client \\(c\\) Valve Corporation - version (?<version>\\d+)';
     let output = '';
-    await exec.exec(path, '+quit', {
+    await exec.exec(tool, '+quit', {
         listeners: {
             stdout: (data) => {
                 output += data.toString();
