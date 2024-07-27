@@ -32,6 +32,6 @@ jobs:
       - run: |
           which steamcmd
           steamcmd +login anonymous +help +quit
-          echo $STEAM_DIR
-          ls -laR $STEAM_DIR
+          echo "$STEAM_DIR"
+          ls -laR "$STEAM_DIR"
         shell: bash
