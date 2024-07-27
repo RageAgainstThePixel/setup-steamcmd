@@ -34,5 +34,6 @@ jobs:
           which steamcmd
           steamcmd +login anonymous +help +quit
           // recursively list all files in the steamcmd directory
-          ls -alR $STEAM_CMD
+          echo $STEAM_CMD
+          ls -R $STEAM_CMD
         shell: bash
