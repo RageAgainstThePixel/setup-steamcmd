@@ -35,9 +35,10 @@ jobs:
           echo "$STEAM_DIR"
           logsDir="$STEAM_DIR/logs"
           echo "Logs dir: $logsDir"
-          logFiles=$(ls $logsDir)
+          logFiles=$(ls "$logsDir")
           for logFile in $logFiles; do
-            echo "$logsDir/$logFile"
+            echo "::group::$logsDir/$logFile"
             cat "$logsDir/$logFile"
+            echo "::endgroup::"
           done
         shell: bash
