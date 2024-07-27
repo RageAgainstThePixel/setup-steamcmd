@@ -139,18 +139,25 @@ function getSteamDir(toolDirectory) {
     let steamDir = undefined;
     switch (process.platform) {
         case 'linux':
-            steamDir = path.resolve('home', 'runner', 'Steam');
+            steamDir = '/home/runner/Steam';
             break;
         case 'darwin':
-            steamDir = path.resolve('Users', 'runner', 'Library', 'Application Support', 'Steam');
+            steamDir = '/Users/runner/Library/Application Support/Steam';
             break;
         default:
             steamDir = toolDirectory;
             break;
     }
-    if (!steamDir || !fs.access(steamDir)) {
-        core.debug(`Creating Steam directory: ${steamDir}`);
-        fs.mkdir(steamDir);
+    // check if steam directory exists and create if not
+    try {
+        fs.access(steamDir);
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            core.debug(`Creating steam directory: ${steamDir}`);
+            fs.mkdir(steamDir);
+        } else {
+            throw error;
+        }
     }
     core.debug(`Steam directory: ${steamDir}`);
     return steamDir;
