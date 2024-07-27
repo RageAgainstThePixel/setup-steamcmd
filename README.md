@@ -26,4 +26,4 @@ jobs:
           steamcmd +help +quit
 ```
 
-for a full list of `steamcmd` commands see [this list](https://github.com/dgibbs64/SteamCMD-Commands-List).
+For a full list of `steamcmd` commands see [this list](https://github.com/dgibbs64/SteamCMD-Commands-List/blob/main/steamcmd_commands.txt).
