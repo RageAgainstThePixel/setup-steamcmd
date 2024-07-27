@@ -26,9 +26,6 @@ jobs:
       - name: checkout self
         uses: actions/checkout@v4
 
-      - run: 'which steamcmd'
-        continue-on-error: true
-
       - name: RageAgainstThePixel/setup-steamcmd
         uses: ./
 
