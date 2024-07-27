@@ -28,7 +28,7 @@ async function setup_steamcmd() {
     const [toolDirectory, steamDir] = await findOrDownload();
     core.debug(`${STEAM_CMD} -> ${toolDirectory}`);
     core.addPath(toolDirectory);
-    const steam_cmd = path.resolve(toolDirectory, steamcmd);
+    const steam_cmd = path.join(toolDirectory, steamcmd);
     core.exportVariable(STEAM_CMD, steam_cmd);
     core.debug(`${STEAM_DIR} -> ${steamDir}`);
     core.exportVariable(STEAM_DIR, steamDir);
@@ -40,12 +40,12 @@ async function findOrDownload() {
     let tool = undefined;
     if (!toolDirectory) {
         const [url, archiveName] = getDownloadUrl();
-        const archiveDownloadPath = path.resolve(getTempDirectory(), archiveName);
+        const archiveDownloadPath = path.join(getTempDirectory(), archiveName);
         core.debug(`Attempting to download ${steamcmd} from ${url} to ${archiveDownloadPath}`);
         const archivePath = await tc.downloadTool(url, archiveDownloadPath);
         core.debug(`Successfully downloaded ${steamcmd} to ${archivePath}`);
         core.debug(`Extracting ${steamcmd} from ${archivePath}`);
-        let downloadDirectory = path.resolve(getTempDirectory(), steamcmd);
+        let downloadDirectory = path.join(getTempDirectory(), steamcmd);
         if (IS_WINDOWS) {
             downloadDirectory = await tc.extractZip(archivePath, downloadDirectory);
         } else {
@@ -58,9 +58,9 @@ async function findOrDownload() {
             await exec.exec(`chmod +x ${downloadDirectory}`);
         }
         core.debug(`Successfully extracted ${steamcmd} to ${downloadDirectory}`);
-        tool = path.resolve(downloadDirectory, toolPath);
+        tool = path.join(downloadDirectory, toolPath);
         if (IS_LINUX) {
-            const exe = path.resolve(downloadDirectory, steamcmd);
+            const exe = path.join(downloadDirectory, steamcmd);
             await fs.writeFile(exe, `#!/bin/bash\nexec "${tool}" "$@"`);
             await fs.chmod(exe, 0o755);
         }
@@ -68,7 +68,7 @@ async function findOrDownload() {
         core.debug(`Setting tool cache: ${downloadDirectory} | ${steamcmd} | ${downloadVersion}`);
         toolDirectory = await tc.cacheDir(downloadDirectory, steamcmd, downloadVersion);
     } else {
-        tool = path.resolve(toolDirectory, toolPath);
+        tool = path.join(toolDirectory, toolPath);
     }
     fs.access(tool);
     core.debug(`Found ${tool} in ${toolDirectory}`);
