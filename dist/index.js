@@ -30710,8 +30710,7 @@ const main = async () => {
 main();
 
 async function setup_steamcmd() {
-    const [tool, toolDirectory, steamDir] = await findOrDownload();
-    await exec.exec(tool, ['+help', '+quit']);
+    const [toolDirectory, steamDir] = await findOrDownload();
     core.debug(`${STEAM_CMD} -> ${toolDirectory}`);
     core.addPath(toolDirectory);
     if (IS_LINUX) {
@@ -30721,6 +30720,7 @@ async function setup_steamcmd() {
         core.exportVariable(STEAM_CMD, toolDirectory);
     }
     core.exportVariable('STEAM_DIR', steamDir);
+    await exec.exec(steamcmd, ['+help', '+quit']);
 }
 
 async function findOrDownload() {
@@ -30767,7 +30767,7 @@ async function findOrDownload() {
     }
     core.debug(`Found ${tool} in ${toolDirectory}`);
     const steamDir = getSteamDir(toolDirectory);
-    return [tool, toolDirectory, steamDir];
+    return [toolDirectory, steamDir];
 }
 
 function getDownloadUrl() {
