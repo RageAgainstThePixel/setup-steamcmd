@@ -1,6 +1,11 @@
 # setup-steamcmd
 
-Sets up `steamcmd` for Github Action Runners.
+Sets up `steamcmd` command alias for Github Action Runners.
+
+## Exported Env Vars
+
+- `STEAM_CMD` the `steamcmd` directory location.
+- `STEAM_DIR` the steam install directory location.
 
 ## How to use
 
