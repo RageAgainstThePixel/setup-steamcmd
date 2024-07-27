@@ -26,14 +26,12 @@ jobs:
       - name: checkout self
         uses: actions/checkout@v4
 
-        # exports STEAM_CMD env variable
       - name: RageAgainstThePixel/setup-steamcmd
         uses: ./
 
       - run: |
           which steamcmd
           steamcmd +login anonymous +help +quit
-          // recursively list all files in the steamcmd directory
           echo $STEAM_CMD
-          ls -R $STEAM_CMD
+          ls -laR $STEAM_CMD
         shell: bash
