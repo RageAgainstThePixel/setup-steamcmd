@@ -28,7 +28,8 @@ async function setup_steamcmd() {
     const [toolDirectory, steamDir] = await findOrDownload();
     core.debug(`${STEAM_CMD} -> ${toolDirectory}`);
     core.addPath(toolDirectory);
-    core.exportVariable(STEAM_CMD, toolDirectory);
+    const steam_cmd = path.resolve(toolDirectory, steamcmd);
+    core.exportVariable(STEAM_CMD, steam_cmd);
     core.debug(`${STEAM_DIR} -> ${steamDir}`);
     core.exportVariable(STEAM_DIR, steamDir);
     await exec.exec(steamcmd, ['+help', '+quit']);
@@ -67,7 +68,7 @@ async function findOrDownload() {
         core.debug(`Setting tool cache: ${downloadDirectory} | ${steamcmd} | ${downloadVersion}`);
         toolDirectory = await tc.cacheDir(downloadDirectory, steamcmd, downloadVersion);
     }
-    tool = path.resolve(toolDirectory, steamcmd);
+    tool = path.resolve(toolDirectory, toolPath);
     fs.access(tool);
     core.debug(`Found ${tool} in ${toolDirectory}`);
     const steamDir = getSteamDir(toolDirectory);
