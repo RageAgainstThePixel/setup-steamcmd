@@ -26,12 +26,15 @@ jobs:
       - name: checkout self
         uses: actions/checkout@v4
 
+      - run: 'which steamcmd'
+        continue-on-error: true
+
       - name: RageAgainstThePixel/setup-steamcmd
         uses: ./
 
       - run: |
           which steamcmd
           steamcmd +login anonymous +help +quit
-          echo $STEAM_CMD
-          ls -laR $STEAM_CMD
+          echo $STEAM_DIR
+          ls -laR $STEAM_DIR
         shell: bash

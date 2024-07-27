@@ -24,7 +24,7 @@ const main = async () => {
 main();
 
 async function setup_steamcmd() {
-    const [tool, toolDirectory] = await findOrDownload();
+    const [tool, toolDirectory, steamDir] = await findOrDownload();
     await exec.exec(tool, ['+help', '+quit']);
     core.debug(`${STEAM_CMD} -> ${toolDirectory}`);
     core.addPath(toolDirectory);
@@ -34,6 +34,7 @@ async function setup_steamcmd() {
     } else {
         core.exportVariable(STEAM_CMD, toolDirectory);
     }
+    core.exportVariable('STEAM_DIR', steamDir);
 }
 
 async function findOrDownload() {
@@ -79,7 +80,8 @@ async function findOrDownload() {
         tool = getExecutable(toolDirectory);
     }
     core.debug(`Found ${tool} in ${toolDirectory}`);
-    return [tool, toolDirectory];
+    const steamDir = getSteamDir(toolDirectory);
+    return [tool, toolDirectory, steamDir];
 }
 
 function getDownloadUrl() {
@@ -131,4 +133,25 @@ async function getVersion(path) {
     }
     core.debug(`Found version: ${version}`);
     return version
+}
+
+function getSteamDir(toolDirectory) {
+    let steamDir = undefined;
+    switch (process.platform) {
+        case 'linux':
+            steamDir = '/home/runner/Steam';
+            break;
+        case 'darwin':
+            steamDir = '/Users/runner/Library/Application Support/Steam';
+            break;
+        default:
+            steamDir = toolDirectory;
+            break;
+    }
+    if (!fs.existsSync(steamDir)) {
+        core.debug(`Creating Steam directory: ${steamDir}`);
+        fs.mkdir(steamDir);
+    }
+    core.debug(`Steam directory: ${steamDir}`);
+    return steamDir;
 }
