@@ -36,7 +36,13 @@ async function setup_steamcmd() {
 }
 
 async function findOrDownload() {
-    let toolDirectory = tc.find(steamcmd, '*');
+    const allVersions = tc.findAllVersions(steamcmd);
+    core.debug(`Found versions: ${allVersions}`);
+    let toolDirectory = undefined;
+    if (allVersions && allVersions.length > 0) {
+        const latest = allVersions.sort().pop();
+        toolDirectory = tc.find(steamcmd, latest);
+    }
     let tool = undefined;
     if (!toolDirectory) {
         const [url, archiveName] = getDownloadUrl();
@@ -114,7 +120,7 @@ async function getVersion(tool) {
     if (!match) {
         throw new Error('Failed to get version');
     }
-    const version = match.groups.version
+    const version = `${match.groups.version}.0.0`;
     if (!version) {
         throw new Error('Failed to parse version');
     }

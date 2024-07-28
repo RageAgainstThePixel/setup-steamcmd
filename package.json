@@ -1,6 +1,6 @@
 {
   "name": "setup-steamcmd",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Sets up steamcmd for Github Action Runners",
   "author": "RageAgainstThePixel",
   "repository": {
