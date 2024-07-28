@@ -30771,24 +30771,6 @@ async function findOrDownload() {
     return [toolDirectory, steamDir];
 }
 
-function findAllVersions() {
-    let versions = [];
-    const toolPath = path.join(TOOL_CACHE, steamcmd);
-    const arch = os.arch();
-    if (fsSync.existsSync(toolPath)) {
-        const children = fsSync.readdirSync(toolPath);
-        for (let i = 0; i < children.length; i++) {
-            const child = children[i];
-            const fullPath = path.join(toolPath, child, arch || '');
-            if (fsSync.existsSync(fullPath)) {
-                core.debug(fullPath);
-                versions.push(child);
-            }
-        }
-    }
-    return versions;
-}
-
 function getDownloadUrl() {
     let archiveName = undefined;
     switch (process.platform) {
