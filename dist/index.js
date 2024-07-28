@@ -30774,15 +30774,16 @@ async function findAllVersions() {
     let versions = [];
     const toolPath = path.join(TOOL_CACHE, steamcmd);
     const arch = os.arch();
-    if (fs.existsSync(toolPath)) {
-        const children = fs.readdirSync(toolPath);
-        children.forEach(child => {
+    if (await fs.exists(toolPath)) {
+        const children = await fs.readdir(toolPath);
+        for (let i = 0; i < children.length; i++) {
+            const child = children[i];
             const fullPath = path.join(toolPath, child, arch || '');
-            if (fs.existsSync(fullPath)) {
+            if (await fs.exists(fullPath)) {
                 core.debug(fullPath);
                 versions.push(child);
             }
-        });
+        }
     }
     return versions;
 }
