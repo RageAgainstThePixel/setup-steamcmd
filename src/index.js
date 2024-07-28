@@ -3,6 +3,7 @@ const core = require('@actions/core');
 const tc = require('@actions/tool-cache');
 const exec = require('@actions/exec');
 const fs = require('fs').promises;
+const fsSync = require('fs');
 const os = require('os');
 
 const steamcmd = 'steamcmd';
@@ -84,16 +85,16 @@ async function findOrDownload() {
     return [toolDirectory, steamDir];
 }
 
-async function findAllVersions() {
+function findAllVersions() {
     let versions = [];
     const toolPath = path.join(TOOL_CACHE, steamcmd);
     const arch = os.arch();
-    if (await fs.exists(toolPath)) {
-        const children = await fs.readdir(toolPath);
+    if (fsSync.existsSync(toolPath)) {
+        const children = fsSync.readdirSync(toolPath);
         for (let i = 0; i < children.length; i++) {
             const child = children[i];
             const fullPath = path.join(toolPath, child, arch || '');
-            if (await fs.exists(fullPath)) {
+            if (fsSync.existsSync(fullPath)) {
                 core.debug(fullPath);
                 versions.push(child);
             }
