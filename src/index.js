@@ -39,14 +39,11 @@ async function setup_steamcmd() {
 }
 
 async function findOrDownload() {
-    const allVersions = findAllVersions();
+    const allVersions = tc.findAllVersions(steamcmd);
     core.debug(`Found versions: ${allVersions}`);
     let toolDirectory = undefined;
     if (allVersions && allVersions.length > 0) {
-        let latest = allVersions.sort().pop();
-        if (!latest.match(/^\d+\.\d+\.\d+$/)) {
-            latest = `${latest}.0.0`;
-        }
+        const latest = allVersions.sort().pop();
         toolDirectory = tc.find(steamcmd, latest);
     }
     let tool = undefined;
@@ -77,8 +74,8 @@ async function findOrDownload() {
             await fs.chmod(exe, 0o755);
         }
         const downloadVersion = await getVersion(tool);
-        core.debug(`Setting tool cache: ${downloadDirectory} | ${steamcmd} | ${downloadVersion}.0.0`);
-        toolDirectory = await tc.cacheDir(downloadDirectory, steamcmd, `${downloadVersion}.0.0`);
+        core.debug(`Setting tool cache: ${downloadDirectory} | ${steamcmd} | ${downloadVersion}`);
+        toolDirectory = await tc.cacheDir(downloadDirectory, steamcmd, downloadVersion);
     } else {
         tool = path.join(toolDirectory, toolPath);
     }
@@ -144,7 +141,7 @@ async function getVersion(tool) {
     if (!match) {
         throw new Error('Failed to get version');
     }
-    const version = match.groups.version
+    const version = `${match.groups.version}.0.0`;
     if (!version) {
         throw new Error('Failed to parse version');
     }
