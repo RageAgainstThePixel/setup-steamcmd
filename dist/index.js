@@ -30690,6 +30690,7 @@ const tc = __nccwpck_require__(7784);
 const exec = __nccwpck_require__(1514);
 const fs = (__nccwpck_require__(7147).promises);
 
+
 const steamcmd = 'steamcmd';
 const STEAM_CMD = 'STEAM_CMD';
 const STEAM_DIR = 'STEAM_DIR';
@@ -30698,6 +30699,7 @@ const IS_MAC = process.platform === 'darwin';
 const IS_WINDOWS = process.platform === 'win32';
 const toolExtension = IS_WINDOWS ? '.exe' : '.sh';
 const toolPath = `${steamcmd}${toolExtension}`;
+const TOOL_CACHE = process.env.RUNNER_TOOL_CACHE || ''
 
 const main = async () => {
     try {
@@ -30722,7 +30724,7 @@ async function setup_steamcmd() {
 }
 
 async function findOrDownload() {
-    const allVersions = tc.findAllVersions(steamcmd);
+    const allVersions = findAllVersions();
     core.debug(`Found versions: ${allVersions}`);
     let toolDirectory = undefined;
     if (allVersions && allVersions.length > 0) {
@@ -30766,6 +30768,23 @@ async function findOrDownload() {
     core.debug(`Found ${tool} in ${toolDirectory}`);
     const steamDir = getSteamDir(toolDirectory);
     return [toolDirectory, steamDir];
+}
+
+async function findAllVersions() {
+    let versions = [];
+    const toolPath = path.join(TOOL_CACHE, steamcmd);
+    const arch = os.arch();
+    if (fs.existsSync(toolPath)) {
+        const children = fs.readdirSync(toolPath);
+        children.forEach(child => {
+            const fullPath = path.join(toolPath, child, arch || '');
+            if (fs.existsSync(fullPath)) {
+                core.debug(fullPath);
+                versions.push(child);
+            }
+        });
+    }
+    return versions;
 }
 
 function getDownloadUrl() {
