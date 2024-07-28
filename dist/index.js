@@ -30729,7 +30729,10 @@ async function findOrDownload() {
     core.debug(`Found versions: ${allVersions}`);
     let toolDirectory = undefined;
     if (allVersions && allVersions.length > 0) {
-        const latest = allVersions.sort().pop();
+        let latest = allVersions.sort().pop();
+        if (!latest.match(/^\d+\.\d+\.\d+$/)) {
+            latest = `${latest}.0.0`;
+        }
         toolDirectory = tc.find(steamcmd, latest);
     }
     let tool = undefined;
@@ -30760,8 +30763,8 @@ async function findOrDownload() {
             await fs.chmod(exe, 0o755);
         }
         const downloadVersion = await getVersion(tool);
-        core.debug(`Setting tool cache: ${downloadDirectory} | ${steamcmd} | ${downloadVersion}`);
-        toolDirectory = await tc.cacheDir(downloadDirectory, steamcmd, downloadVersion);
+        core.debug(`Setting tool cache: ${downloadDirectory} | ${steamcmd} | ${downloadVersion}.0.0`);
+        toolDirectory = await tc.cacheDir(downloadDirectory, steamcmd, `${downloadVersion}.0.0`);
     } else {
         tool = path.join(toolDirectory, toolPath);
     }
