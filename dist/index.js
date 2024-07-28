@@ -30723,6 +30723,7 @@ async function setup_steamcmd() {
 
 async function findOrDownload() {
     const allVersions = tc.findAllVersions(steamcmd);
+    core.debug(`Found versions: ${allVersions}`);
     let toolDirectory = undefined;
     if (allVersions && allVersions.length > 0) {
         const latest = allVersions.sort().pop();
