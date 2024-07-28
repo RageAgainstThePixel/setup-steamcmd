@@ -100,7 +100,6 @@ function getTempDirectory() {
 }
 
 async function getVersion(tool) {
-    const semVerRegEx = 'Steam Console Client \\(c\\) Valve Corporation - version (?<version>\\d+)';
     let output = '';
     await exec.exec(tool, '+quit', {
         listeners: {
@@ -111,7 +110,7 @@ async function getVersion(tool) {
         ignoreReturnCode: IS_WINDOWS,
         silent: !core.isDebug()
     });
-    const match = output.match(semVerRegEx);
+    const match = output.match(/Steam Console Client \(c\) Valve Corporation - version (?<version>\d+)/);
     if (!match) {
         throw new Error('Failed to get version');
     }
