@@ -3,7 +3,7 @@ const core = require('@actions/core');
 const tc = require('@actions/tool-cache');
 const exec = require('@actions/exec');
 const fs = require('fs').promises;
-
+const os = require('os');
 
 const steamcmd = 'steamcmd';
 const STEAM_CMD = 'STEAM_CMD';
