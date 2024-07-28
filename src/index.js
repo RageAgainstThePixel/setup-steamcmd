@@ -3,8 +3,6 @@ const core = require('@actions/core');
 const tc = require('@actions/tool-cache');
 const exec = require('@actions/exec');
 const fs = require('fs').promises;
-const fsSync = require('fs');
-const os = require('os');
 
 const steamcmd = 'steamcmd';
 const STEAM_CMD = 'STEAM_CMD';
@@ -14,7 +12,6 @@ const IS_MAC = process.platform === 'darwin';
 const IS_WINDOWS = process.platform === 'win32';
 const toolExtension = IS_WINDOWS ? '.exe' : '.sh';
 const toolPath = `${steamcmd}${toolExtension}`;
-const TOOL_CACHE = process.env.RUNNER_TOOL_CACHE || ''
 
 const main = async () => {
     try {

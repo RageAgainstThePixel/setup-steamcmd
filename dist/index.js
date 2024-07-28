@@ -30689,8 +30689,6 @@ const core = __nccwpck_require__(2186);
 const tc = __nccwpck_require__(7784);
 const exec = __nccwpck_require__(1514);
 const fs = (__nccwpck_require__(7147).promises);
-const fsSync = __nccwpck_require__(7147);
-const os = __nccwpck_require__(2037);
 
 const steamcmd = 'steamcmd';
 const STEAM_CMD = 'STEAM_CMD';
@@ -30700,7 +30698,6 @@ const IS_MAC = process.platform === 'darwin';
 const IS_WINDOWS = process.platform === 'win32';
 const toolExtension = IS_WINDOWS ? '.exe' : '.sh';
 const toolPath = `${steamcmd}${toolExtension}`;
-const TOOL_CACHE = process.env.RUNNER_TOOL_CACHE || ''
 
 const main = async () => {
     try {
