@@ -28834,7 +28834,7 @@ const IS_WINDOWS = process.platform === 'win32';
 const toolExtension = IS_WINDOWS ? '.exe' : '.sh';
 const toolPath = `${steamcmd}${toolExtension}`;
 
-async function SteamCmd() {
+async function Run() {
     const [toolDirectory, steamDir] = await findOrDownload();
     core.debug(`${STEAM_CMD} -> ${toolDirectory}`);
     core.addPath(toolDirectory);
@@ -28970,7 +28970,7 @@ function getSteamDir(toolDirectory) {
     return steamDir;
 }
 
-module.exports = { SteamCmd }
+module.exports = { Run }
 
 
 /***/ }),
@@ -30896,19 +30896,18 @@ const setup = __nccwpck_require__(7521);
 const IsPost = !!core.getState('isPost');
 
 const main = async () => {
-    try {
-        if (!IsPost) {
-            core.info(`Setting up steamcmd...`);
-            core.saveState('isPost', 'true');
-            core.info(`IS_POST: ${IsPost}`);
-            await setup.SteamCmd();
-        } else {
-            core.info('Dumping steamcmd logs...');
-            await logging.PrintLogs(process.env.STEAM_TEMP);
-            await logging.PrintLogs(process.env.STEAM_CMD, true);
+    if (!IsPost) {
+        core.saveState('isPost', 'true');
+        core.info('Setup steamcmd...');
+        try {
+            await setup.Run();
+        } catch (error) {
+            core.setFailed(error);
         }
-    } catch (error) {
-        core.setFailed(error);
+    } else {
+        core.info('Dumping steamcmd logs...');
+        await logging.PrintLogs(process.env.STEAM_TEMP);
+        await logging.PrintLogs(process.env.STEAM_CMD, true);
     }
 }
 

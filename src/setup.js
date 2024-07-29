@@ -14,7 +14,7 @@ const IS_WINDOWS = process.platform === 'win32';
 const toolExtension = IS_WINDOWS ? '.exe' : '.sh';
 const toolPath = `${steamcmd}${toolExtension}`;
 
-async function SteamCmd() {
+async function Run() {
     const [toolDirectory, steamDir] = await findOrDownload();
     core.debug(`${STEAM_CMD} -> ${toolDirectory}`);
     core.addPath(toolDirectory);
@@ -150,4 +150,4 @@ function getSteamDir(toolDirectory) {
     return steamDir;
 }
 
-module.exports = { SteamCmd }
+module.exports = { Run }
