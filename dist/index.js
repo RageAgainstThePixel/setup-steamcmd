@@ -30751,6 +30751,7 @@ const main = async () => {
     try {
         if (!IsPost) {
             core.info(`Setting up ${steamcmd}...`);
+            core.saveState('isPost', 'true');
             await setup_steamcmd();
         } else {
             core.info('Dumping steamcmd logs...');
