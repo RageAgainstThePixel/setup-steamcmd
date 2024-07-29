@@ -16,7 +16,11 @@ const main = async () => {
     } else {
         core.info('Dumping steamcmd logs...');
         await logging.PrintLogs(process.env.STEAM_TEMP);
-        await logging.PrintLogs(process.env.STEAM_CMD, true);
+        if (process.platform === 'win32') {
+            await logging.PrintLogs(process.env.STEAM_CMD, true);
+        } else {
+            await logging.PrintLogs(process.env.STEAM_DIR, true);
+        }
     }
 }
 

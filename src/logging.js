@@ -11,6 +11,7 @@ async function PrintLogs(directory, clear = false) {
                 const stat = await fs.stat(path);
                 if (!stat.isFile()) { continue; }
                 if (!/\.(log|txt|vdf)$/.test(log)) { continue }
+                if (log.includes('steambootstrapper')) { continue; }
                 const logContent = await fs.readFile(path, 'utf8');
                 core.info(`::group::${log}`);
                 core.info(logContent);

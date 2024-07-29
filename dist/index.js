@@ -28794,6 +28794,7 @@ async function PrintLogs(directory, clear = false) {
                 const stat = await fs.stat(path);
                 if (!stat.isFile()) { continue; }
                 if (!/\.(log|txt|vdf)$/.test(log)) { continue }
+                if (log.includes('steambootstrapper')) { continue; }
                 const logContent = await fs.readFile(path, 'utf8');
                 core.info(`::group::${log}`);
                 core.info(logContent);
@@ -30907,7 +30908,11 @@ const main = async () => {
     } else {
         core.info('Dumping steamcmd logs...');
         await logging.PrintLogs(process.env.STEAM_TEMP);
-        await logging.PrintLogs(process.env.STEAM_CMD, true);
+        if (process.platform === 'win32') {
+            await logging.PrintLogs(process.env.STEAM_CMD, true);
+        } else {
+            await logging.PrintLogs(process.env.STEAM_DIR, true);
+        }
     }
 }
 
