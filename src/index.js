@@ -3,6 +3,8 @@ const core = require('@actions/core');
 const tc = require('@actions/tool-cache');
 const exec = require('@actions/exec');
 const fs = require('fs').promises;
+const logging = require('./logging');
+const IsPost = !!core.getState('isPost');
 
 const steamcmd = 'steamcmd';
 const STEAM_CMD = 'STEAM_CMD';
@@ -15,8 +17,14 @@ const toolPath = `${steamcmd}${toolExtension}`;
 
 const main = async () => {
     try {
-        core.info(`Setting up ${steamcmd}...`);
-        await setup_steamcmd();
+        if (!IsPost) {
+            core.info(`Setting up ${steamcmd}...`);
+            await setup_steamcmd();
+        } else {
+            core.info('Dumping steamcmd logs...');
+            await logging.PrintLogs(path.join(process.env.RUNNER_TEMP, '.steamworks'));
+            await logging.PrintLogs(path.join(process.env.STEAM_CMD), true);
+        }
     } catch (error) {
         core.setFailed(error.message);
     }
@@ -28,7 +36,7 @@ async function setup_steamcmd() {
     const [toolDirectory, steamDir] = await findOrDownload();
     core.debug(`${STEAM_CMD} -> ${toolDirectory}`);
     core.addPath(toolDirectory);
-    const steam_cmd = path.join(toolDirectory, steamcmd);
+    const steam_cmd = path.join(toolDirectory, steamcmd, '..');
     core.exportVariable(STEAM_CMD, steam_cmd);
     core.debug(`${STEAM_DIR} -> ${steamDir}`);
     core.exportVariable(STEAM_DIR, steamDir);

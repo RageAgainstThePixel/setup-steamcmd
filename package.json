@@ -1,6 +1,6 @@
 {
   "name": "setup-steamcmd",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Sets up steamcmd for Github Action Runners",
   "author": "RageAgainstThePixel",
   "repository": {
@@ -28,6 +28,6 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "ncc build src/index.js -o dist --source-map --license licenses.txt"
+    "build": "npm install && npm ci && ncc build src/index.js -o dist --source-map --license licenses.txt"
   }
 }

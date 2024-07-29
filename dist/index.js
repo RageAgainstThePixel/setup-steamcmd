@@ -28778,6 +28778,43 @@ exports["default"] = _default;
 
 /***/ }),
 
+/***/ 1751:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const core = __nccwpck_require__(2186);
+const fs = __nccwpck_require__(3292);
+
+async function PrintLogs(directory, clear = false) {
+    core.info(directory);
+    try {
+        const logs = await fs.readdir(directory, { recursive: true });
+        for (const log of logs) {
+            try {
+                const path = `${directory}/${log}`;
+                const stat = await fs.stat(path);
+                if (!stat.isFile()) { continue; }
+                if (!/\.(log|txt|vdf)$/.test(log)) { continue }
+                const logContent = await fs.readFile(path, 'utf8');
+                core.info(`::group::${log}`);
+                core.info(logContent);
+                core.info('::endgroup::');
+                if (clear) {
+                    await fs.unlink(path);
+                }
+            } catch (error) {
+                core.error(`Failed to read log: ${path}\n${error.message}`);
+            }
+        }
+    } catch (error) {
+        core.error(`Failed to read logs in ${directory}!\n${error.message}`);
+    }
+}
+
+module.exports = { PrintLogs }
+
+
+/***/ }),
+
 /***/ 4978:
 /***/ ((module) => {
 
@@ -28855,6 +28892,14 @@ module.exports = require("events");
 
 "use strict";
 module.exports = require("fs");
+
+/***/ }),
+
+/***/ 3292:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("fs/promises");
 
 /***/ }),
 
@@ -30689,6 +30734,8 @@ const core = __nccwpck_require__(2186);
 const tc = __nccwpck_require__(7784);
 const exec = __nccwpck_require__(1514);
 const fs = (__nccwpck_require__(7147).promises);
+const logging = __nccwpck_require__(1751);
+const IsPost = !!core.getState('isPost');
 
 const steamcmd = 'steamcmd';
 const STEAM_CMD = 'STEAM_CMD';
@@ -30701,8 +30748,14 @@ const toolPath = `${steamcmd}${toolExtension}`;
 
 const main = async () => {
     try {
-        core.info(`Setting up ${steamcmd}...`);
-        await setup_steamcmd();
+        if (!IsPost) {
+            core.info(`Setting up ${steamcmd}...`);
+            await setup_steamcmd();
+        } else {
+            core.info('Dumping steamcmd logs...');
+            await logging.PrintLogs(path.join(process.env.RUNNER_TEMP, '.steamworks'));
+            await logging.PrintLogs(path.join(process.env.STEAM_CMD), true);
+        }
     } catch (error) {
         core.setFailed(error.message);
     }
@@ -30714,7 +30767,7 @@ async function setup_steamcmd() {
     const [toolDirectory, steamDir] = await findOrDownload();
     core.debug(`${STEAM_CMD} -> ${toolDirectory}`);
     core.addPath(toolDirectory);
-    const steam_cmd = path.join(toolDirectory, steamcmd);
+    const steam_cmd = path.join(toolDirectory, steamcmd, '..');
     core.exportVariable(STEAM_CMD, steam_cmd);
     core.debug(`${STEAM_DIR} -> ${steamDir}`);
     core.exportVariable(STEAM_DIR, steamDir);
