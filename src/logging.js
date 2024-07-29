@@ -14,15 +14,10 @@ async function PrintLogs(directory, clear = false) {
                 if (!stat.isFile()) { continue; }
                 if (!/\.(log|txt|vdf)$/.test(file)) { continue }
                 if (excludedPaths.some(excluded => fullPath.includes(excluded))) { continue; }
-                const fileHandle = await fs.open(fullPath, 'r');
-                try {
-                    const logContent = await fs.readFile(fileHandle, 'utf8');
-                    core.info(`::group::${file}`);
-                    core.info(logContent);
-                    core.info('::endgroup::');
-                } finally {
-                    await fileHandle.close();
-                }
+                const logContent = await fs.readFile(fullPath, 'utf8');
+                core.info(`::group::${file}`);
+                core.info(logContent);
+                core.info('::endgroup::');
                 if (clear && fullPath.includes('logs')) {
                     await fs.unlink(fullPath);
                 }
