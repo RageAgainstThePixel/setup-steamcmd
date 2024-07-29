@@ -28798,10 +28798,14 @@ async function PrintLogs(directory, clear = false) {
                 if (!/\.(log|txt|vdf)$/.test(file)) { continue }
                 if (excludedPaths.some(excluded => fullPath.includes(excluded))) { continue; }
                 const fileHandle = await fs.open(fullPath, 'r');
-                const logContent = await fs.readFile(fileHandle, 'utf8');
-                core.info(`::group::${file}`);
-                core.info(logContent);
-                core.info('::endgroup::');
+                try {
+                    const logContent = await fs.readFile(fileHandle, 'utf8');
+                    core.info(`::group::${file}`);
+                    core.info(logContent);
+                    core.info('::endgroup::');
+                } finally {
+                    await fileHandle.close();
+                }
                 if (clear && fullPath.includes('logs')) {
                     await fs.unlink(fullPath);
                 }
