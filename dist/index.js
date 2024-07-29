@@ -30900,6 +30900,7 @@ const main = async () => {
         if (!IsPost) {
             core.info(`Setting up steamcmd...`);
             core.saveState('isPost', 'true');
+            core.info(`IS_POST: ${IsPost}`);
             await setup.SteamCmd();
         } else {
             core.info('Dumping steamcmd logs...');
@@ -30909,7 +30910,7 @@ const main = async () => {
     } catch (error) {
         core.setFailed(error);
     }
-};
+}
 
 main();
 
