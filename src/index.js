@@ -9,6 +9,7 @@ const IsPost = !!core.getState('isPost');
 const steamcmd = 'steamcmd';
 const STEAM_CMD = 'STEAM_CMD';
 const STEAM_DIR = 'STEAM_DIR';
+const STEAM_TEMP = 'STEAM_TEMP';
 const IS_LINUX = process.platform === 'linux';
 const IS_MAC = process.platform === 'darwin';
 const IS_WINDOWS = process.platform === 'win32';
@@ -22,8 +23,8 @@ const main = async () => {
             await setup_steamcmd();
         } else {
             core.info('Dumping steamcmd logs...');
-            await logging.PrintLogs(path.join(process.env.RUNNER_TEMP, '.steamworks'));
-            await logging.PrintLogs(path.join(process.env.STEAM_CMD), true);
+            await logging.PrintLogs(process.env.STEAM_TEMP);
+            await logging.PrintLogs(process.env.STEAM_CMD, true);
         }
     } catch (error) {
         core.setFailed(error.message);
@@ -40,6 +41,9 @@ async function setup_steamcmd() {
     core.exportVariable(STEAM_CMD, steam_cmd);
     core.debug(`${STEAM_DIR} -> ${steamDir}`);
     core.exportVariable(STEAM_DIR, steamDir);
+    const steam_temp = path.join(process.env.RUNNER_TEMP, '.steamworks');
+    core.debug(`${STEAM_TEMP} -> ${steam_temp}`);
+    core.exportVariable(STEAM_TEMP, steam_temp);
     await exec.exec(steamcmd, ['+help', '+quit']);
 }
 
