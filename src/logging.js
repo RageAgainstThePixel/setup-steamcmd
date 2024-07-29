@@ -1,5 +1,6 @@
 const core = require('@actions/core');
 const fs = require('fs/promises');
+const fsSync = require('fs');
 const path = require('path');
 const excludedPaths = ['steambootstrapper', 'appcache', 'steamapps'];
 
@@ -14,7 +15,7 @@ async function PrintLogs(directory, clear = false) {
                 if (!stat.isFile()) { continue; }
                 if (!/\.(log|txt|vdf)$/.test(file)) { continue }
                 if (excludedPaths.some(excluded => fullPath.includes(excluded))) { continue; }
-                const logContent = await fs.readFile(fullPath, 'utf8');
+                const logContent = fsSync.readFileSync(fullPath, 'utf8');
                 core.info(`::group::${file}`);
                 core.info(logContent);
                 core.info('::endgroup::');
