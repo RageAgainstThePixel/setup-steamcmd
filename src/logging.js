@@ -1,6 +1,5 @@
 const core = require('@actions/core');
 const fs = require('fs/promises');
-const path = require('path');
 const excludedPaths = ['steambootstrapper', 'appcache', 'steamapps'];
 
 async function PrintLogs(directory, clear = false) {
@@ -9,7 +8,7 @@ async function PrintLogs(directory, clear = false) {
         const files = await fs.readdir(directory, { recursive: true });
         for (const file of files) {
             try {
-                const fullPath = path.join(directory, file);
+                const fullPath = `${directory}/${file}`;
                 const stat = await fs.stat(fullPath);
                 if (!stat.isFile()) { continue; }
                 if (!/\.(log|txt|vdf)$/.test(file)) { continue }
@@ -22,7 +21,7 @@ async function PrintLogs(directory, clear = false) {
                     await fs.unlink(fullPath);
                 }
             } catch (error) {
-                core.error(`Failed to read log: ${path}\n${error.message}`);
+                core.error(`Failed to read log: ${file}\n${error.message}`);
             }
         }
     } catch (error) {

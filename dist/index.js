@@ -28783,7 +28783,6 @@ exports["default"] = _default;
 
 const core = __nccwpck_require__(2186);
 const fs = __nccwpck_require__(3292);
-const path = __nccwpck_require__(1017);
 const excludedPaths = ['steambootstrapper', 'appcache', 'steamapps'];
 
 async function PrintLogs(directory, clear = false) {
@@ -28792,7 +28791,7 @@ async function PrintLogs(directory, clear = false) {
         const files = await fs.readdir(directory, { recursive: true });
         for (const file of files) {
             try {
-                const fullPath = path.join(directory, file);
+                const fullPath = `${directory}/${file}`;
                 const stat = await fs.stat(fullPath);
                 if (!stat.isFile()) { continue; }
                 if (!/\.(log|txt|vdf)$/.test(file)) { continue }
@@ -28805,7 +28804,7 @@ async function PrintLogs(directory, clear = false) {
                     await fs.unlink(fullPath);
                 }
             } catch (error) {
-                core.error(`Failed to read log: ${path}\n${error.message}`);
+                core.error(`Failed to read log: ${file}\n${error.message}`);
             }
         }
     } catch (error) {
