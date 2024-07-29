@@ -6,6 +6,7 @@ A GitHub Action to setup the [`steamcmd`](https://developer.valvesoftware.com/wi
 
 - `STEAM_CMD` the `steamcmd` directory location.
 - `STEAM_DIR` the steam install directory location.
+- `STEAM_TEMP` the temp steam directory location.
 
 ## How to use
 
