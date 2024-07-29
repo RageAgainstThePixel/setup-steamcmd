@@ -30773,6 +30773,7 @@ async function setup_steamcmd() {
     core.debug(`${STEAM_DIR} -> ${steamDir}`);
     core.exportVariable(STEAM_DIR, steamDir);
     const steam_temp = path.join(process.env.RUNNER_TEMP, '.steamworks');
+    fs.mkdir(steam_temp);
     core.debug(`${STEAM_TEMP} -> ${steam_temp}`);
     core.exportVariable(STEAM_TEMP, steam_temp);
     await exec.exec(steamcmd, ['+help', '+quit']);
