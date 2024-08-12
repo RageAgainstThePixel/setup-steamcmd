@@ -30907,7 +30907,7 @@ const main = async () => {
             core.setFailed(error);
         }
     } else {
-        core.info('Dumping steamcmd logs...');
+        core.info('steamcmd logs:');
         await logging.PrintLogs(process.env.STEAM_TEMP);
         if (process.platform === 'win32') {
             await logging.PrintLogs(process.env.STEAM_CMD, true);

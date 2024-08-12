@@ -1,7 +1,7 @@
 {
   "name": "setup-steamcmd",
-  "version": "1.2.0",
-  "description": "Sets up steamcmd for Github Action Runners",
+  "version": "1.2.1",
+  "description": "A GitHub Action to setup the steamcmd command alias.",
   "author": "RageAgainstThePixel",
   "repository": {
     "type": "git",
@@ -11,7 +11,7 @@
   "bugs": {
     "url": "https://github.com/RageAgainstThePixel/setup-steamcmd/issues"
   },
-  "homepage": "https://github.com/RageAgainstThePixel/setup-steamcmd#readme",
+  "homepage": "https://github.com/RageAgainstThePixel/setup-steamcmd",
   "main": "dist/index.js",
   "keywords": [
     "steamcmd",

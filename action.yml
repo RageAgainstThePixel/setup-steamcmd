@@ -1,9 +1,8 @@
 name: 'Setup streamcmd'
-description: 'Sets up steamcmd for Github Action Runners'
+description: A GitHub Action to setup the steamcmd command alias.
 branding:
-  icon: 'box'
   color: 'blue'
-
+  icon: 'terminal'
 runs:
   using: 'node20'
   main: 'dist/index.js'
