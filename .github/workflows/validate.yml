@@ -1,19 +1,17 @@
 name: validate
-
 on:
+  schedule:
+    - cron: '0 0 * * 0' # every sunday at midnight
   push:
     branches:
       - 'main'
   pull_request:
     branches:
       - '*'
-
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
 concurrency:
   group: ${{ github.ref }}
-
 jobs:
   validate:
     runs-on: ${{ matrix.os }}
@@ -21,14 +19,10 @@ jobs:
       fail-fast: false
       matrix:
         os: [ macos-latest, windows-latest, ubuntu-latest ]
-
     steps:
-      - name: checkout self
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
       - name: RageAgainstThePixel/setup-steamcmd
         uses: ./
-
       - run: |
           echo "STEAM_CMD: $STEAM_CMD"
           echo "STEAM_DIR: $STEAM_DIR"
