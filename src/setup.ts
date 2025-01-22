@@ -44,7 +44,7 @@ async function findOrDownload(): Promise<[string, string]> {
         core.debug(`Attempting to download ${steamcmd} from ${url} to ${archiveDownloadPath}`);
         const archivePath = await tc.downloadTool(url, archiveDownloadPath);
         core.debug(`Successfully downloaded ${steamcmd} to ${archivePath}`);
-        core.debug(`Extracting ${steamcmd} from ${archivePath}`);
+        core.debug(`Extracting ${steamcmd} from ${archivePath}...`);
         let downloadDirectory = path.join(getTempDirectory(), steamcmd);
         if (IS_WINDOWS) {
             downloadDirectory = await tc.extractZip(archivePath, downloadDirectory);
@@ -95,12 +95,12 @@ function getDownloadUrl(): [string, string] {
 }
 
 function getTempDirectory(): string {
-    const tempDirectory = process.env['RUNNER_TEMP'] || ''
-    return tempDirectory
+    return process.env['RUNNER_TEMP'] || '';
 }
 
 async function getVersion(tool: string): Promise<string> {
     let output = '';
+    core.info(`[command] ${tool} +quit`);
     await exec.exec(tool, [`+quit`], {
         listeners: {
             stdout: (data) => {
