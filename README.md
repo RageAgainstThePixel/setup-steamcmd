@@ -11,6 +11,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
+
     steps:
       # download and setup the steamcmd
       - uses: RageAgainstThePixel/setup-steamcmd@v1
@@ -29,3 +30,4 @@ For a full list of `steamcmd` commands see [this list](https://github.com/dgibbs
 - `STEAM_CMD` the `steamcmd` directory location.
 - `STEAM_DIR` the steam install directory location.
 - `STEAM_TEMP` the temp steam directory location.
+

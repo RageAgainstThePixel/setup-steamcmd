@@ -13,7 +13,7 @@ export async function PrintLogs(directory: string, clear = false): Promise<void>
             'siteserverui',
             'htmlcache',
             'localconfig.vdf',
-            'config.vdf'
+            'config.vdf',
         ];
         for (const path of paths) {
             try {
