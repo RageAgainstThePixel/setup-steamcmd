@@ -1,6 +1,6 @@
 {
   "name": "setup-steamcmd",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "A GitHub Action to setup the steamcmd command alias.",
   "author": "RageAgainstThePixel",
   "repository": {
@@ -19,7 +19,6 @@
     "actions"
   ],
   "dependencies": {
-    "@actions/cache": "^5.0.5",
     "@actions/core": "^1.11.1",
     "@actions/exec": "^1.1.1",
     "@actions/tool-cache": "^2.0.2"
