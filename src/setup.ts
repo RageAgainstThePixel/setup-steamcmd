@@ -42,8 +42,8 @@ async function findOrDownload(): Promise<[string, string]> {
     core.debug(`Found versions: ${allVersions}`);
     let toolDirectory = undefined;
     if (allVersions && allVersions.length > 0) {
-        const latest = allVersions.sort().pop();
-        toolDirectory = tc.find(steamcmd, latest);
+        // '*' resolves to the highest cached semver
+        toolDirectory = tc.find(steamcmd, '*');
     }
     let tool = undefined;
     if (!toolDirectory) {
