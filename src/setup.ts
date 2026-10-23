@@ -151,7 +151,7 @@ function getTempDirectory(): string {
 
 async function getVersion(tool: string): Promise<string> {
     let output = '';
-    await exec.exec(tool, [`+quit`], {
+    await exec.exec(`"${tool}"`, [`+quit`], {
         listeners: {
             stdout: (data) => {
                 output += data.toString();

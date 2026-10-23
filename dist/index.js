@@ -34508,7 +34508,7 @@ function getTempDirectory() {
 }
 async function getVersion(tool) {
     let output = '';
-    await exec.exec(tool, [`+quit`], {
+    await exec.exec(`"${tool}"`, [`+quit`], {
         listeners: {
             stdout: (data) => {
                 output += data.toString();
