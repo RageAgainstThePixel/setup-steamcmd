@@ -120,7 +120,9 @@ async function findOrDownload(): Promise<[string, string, string]> {
     await fs.promises.access(tool, fs.constants.X_OK);
     core.debug(`Found ${tool} in ${toolDirectory}`);
     const steamDir = await getSteamDir(toolDirectory);
-    const version = path.basename(path.dirname(toolDirectory));
+    // query the executable: steamcmd self-updates in place, so the cache
+    // directory name can lag behind the installed client version
+    const version = await getVersion(tool);
     return [toolDirectory, steamDir, version];
 }
 

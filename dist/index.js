@@ -34482,7 +34482,7 @@ async function findOrDownload() {
     await fs.promises.access(tool, fs.constants.X_OK);
     core.debug(`Found ${tool} in ${toolDirectory}`);
     const steamDir = await getSteamDir(toolDirectory);
-    const version = path.basename(path.dirname(toolDirectory));
+    const version = await getVersion(tool);
     return [toolDirectory, steamDir, version];
 }
 function getDownloadUrl() {
