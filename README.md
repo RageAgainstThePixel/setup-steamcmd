@@ -14,7 +14,7 @@ jobs:
 
     steps:
       # download and setup the steamcmd
-      - uses: RageAgainstThePixel/setup-steamcmd@v1
+      - uses: RageAgainstThePixel/setup-steamcmd@v2
       # run commands
       - run: |
           which steamcmd
@@ -24,6 +24,9 @@ jobs:
 For a full list of `steamcmd` commands see [this list](https://github.com/dgibbs64/SteamCMD-Commands-List/blob/main/steamcmd_commands.txt).
 
 ## outputs
+
+- `path` the full path to the `steamcmd` executable.
+- `version` the installed `steamcmd` version.
 
 ### environment variables
 

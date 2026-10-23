@@ -4,6 +4,7 @@ import exec = require('@actions/exec');
 import path = require('path');
 import fs = require('fs');
 import os = require('os');
+import crypto = require('crypto');
 
 const steamcmd = 'steamcmd';
 const STEAM_CMD = 'STEAM_CMD';
@@ -16,7 +17,7 @@ const toolExtension = IS_WINDOWS ? '.exe' : '.sh';
 const toolPath = `${steamcmd}${toolExtension}`;
 
 export async function Run(): Promise<void> {
-    const [toolDirectory, steam_dir] = await findOrDownload();
+    const [toolDirectory, steam_dir, version] = await findOrDownload();
     core.info(`${STEAM_CMD} -> ${toolDirectory}`);
     core.addPath(toolDirectory);
     const steam_cmd = path.join(toolDirectory, steamcmd, '..');
@@ -34,10 +35,12 @@ export async function Run(): Promise<void> {
     core.info(`${STEAM_TEMP} -> ${steam_temp}`);
     core.exportVariable(STEAM_TEMP, steam_temp);
     core.saveState('STEAM_TEMP', steam_temp);
+    core.setOutput('path', path.join(toolDirectory, IS_LINUX ? steamcmd : toolPath));
+    core.setOutput('version', version);
     await exec.exec(steamcmd, ['+help', '+quit'], { ignoreReturnCode: true });
 }
 
-async function findOrDownload(): Promise<[string, string]> {
+async function findOrDownload(): Promise<[string, string, string]> {
     const allVersions = tc.findAllVersions(steamcmd);
     core.debug(`Found versions: ${allVersions}`);
     let toolDirectory = undefined;
@@ -48,12 +51,13 @@ async function findOrDownload(): Promise<[string, string]> {
     let tool = undefined;
     if (!toolDirectory) {
         const [url, archiveName] = getDownloadUrl();
-        const archiveDownloadPath = path.join(getTempDirectory(), archiveName);
+        const tempDirectory = path.join(getTempDirectory(), `${steamcmd}-${crypto.randomUUID()}`);
+        const archiveDownloadPath = path.join(tempDirectory, archiveName);
         core.debug(`Attempting to download ${steamcmd} from ${url} to ${archiveDownloadPath}`);
         const archivePath = await tc.downloadTool(url, archiveDownloadPath);
         core.debug(`Successfully downloaded ${steamcmd} to ${archivePath}`);
         core.debug(`Extracting ${steamcmd} from ${archivePath}`);
-        let downloadDirectory = path.join(getTempDirectory(), steamcmd);
+        let downloadDirectory = path.join(tempDirectory, steamcmd);
         if (IS_WINDOWS) {
             downloadDirectory = await tc.extractZip(archivePath, downloadDirectory);
         } else {
@@ -62,11 +66,11 @@ async function findOrDownload(): Promise<[string, string]> {
         if (!downloadDirectory) {
             throw new Error(`Failed to extract ${steamcmd} from ${archivePath}`);
         }
-        if (IS_LINUX || IS_MAC) {
-            await exec.exec(`chmod +x ${downloadDirectory}`);
-        }
         core.debug(`Successfully extracted ${steamcmd} to ${downloadDirectory}`);
         tool = path.join(downloadDirectory, toolPath);
+        if (IS_LINUX || IS_MAC) {
+            await fs.promises.chmod(tool, 0o755);
+        }
         const downloadVersion = await getVersion(tool);
         core.debug(`Setting tool cache: ${downloadDirectory} | ${steamcmd} | ${downloadVersion}`);
         toolDirectory = await tc.cacheDir(downloadDirectory, steamcmd, downloadVersion);
@@ -116,7 +120,8 @@ async function findOrDownload(): Promise<[string, string]> {
     await fs.promises.access(tool, fs.constants.X_OK);
     core.debug(`Found ${tool} in ${toolDirectory}`);
     const steamDir = await getSteamDir(toolDirectory);
-    return [toolDirectory, steamDir];
+    const version = path.basename(path.dirname(toolDirectory));
+    return [toolDirectory, steamDir, version];
 }
 
 function getDownloadUrl(): [string, string] {
