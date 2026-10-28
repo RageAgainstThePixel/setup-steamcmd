@@ -22,8 +22,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: RageAgainstThePixel/setup-steamcmd
+        id: setup-steamcmd
         uses: ./
       - run: |
+          echo "path: ${{ steps.setup-steamcmd.outputs.path }}"
+          echo "version: ${{ steps.setup-steamcmd.outputs.version }}"
+          test -f "${{ steps.setup-steamcmd.outputs.path }}"
           echo "STEAM_CMD: $STEAM_CMD"
           echo "STEAM_DIR: $STEAM_DIR"
           which steamcmd > /dev/null
