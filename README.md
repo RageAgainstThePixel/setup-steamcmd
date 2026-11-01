@@ -34,3 +34,7 @@ For a full list of `steamcmd` commands see [this list](https://github.com/dgibbs
 - `STEAM_DIR` the steam install directory location.
 - `STEAM_TEMP` the temp steam directory location.
 
+### post step
+
+The post step prints the steamcmd logs from `STEAM_TEMP` and the steam directory, and clears the steamcmd logs on Windows.
+
