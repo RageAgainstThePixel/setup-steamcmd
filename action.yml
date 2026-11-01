@@ -1,4 +1,4 @@
-name: 'Setup streamcmd'
+name: 'Setup SteamCmd'
 description: A GitHub Action to setup the steamcmd command alias.
 branding:
   color: 'blue'
